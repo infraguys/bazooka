@@ -5,13 +5,12 @@ Bazooka - reliable HTTP client
     :target: https://travis-ci.org/phantomii/bazooka
 
 Features:
-
-  * retries out of box
-  * full-compatible interface with requests
-  * by default client raises exception if status code isn't 2xx
-  * curl-like logging out of box
-  * correlation-id support
-  * Telstra-authentication support
+* retries out of box
+* full-compatible interface with requests
+* by default client raises exception if status code isn't 2xx
+* curl-like logging out of box
+* correlation-id support
+* Telstra-authentication support
 
 
 Example
@@ -24,7 +23,6 @@ Example
   >>  c = client.Client()
   >>
   >>  print c.get('http://eis/').json()
-
 
 or
 
@@ -42,8 +40,7 @@ You can use log_duration flag to enable duration logging
 
   >>  c = client.Client(log_duration=False)
 
-
-  or
+or
 
 .. code-block:: python
 
