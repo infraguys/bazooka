@@ -1,0 +1,2 @@
+requests==2.8.1
+-e git+https://github.com/phantomii/pyretries.git@master#egg=pyretries

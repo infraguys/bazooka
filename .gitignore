@@ -1,0 +1,54 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+*.eggs
+dist
+build
+eggs
+parts
+#bin
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+subunit.log
+AUTHORS
+ChangeLog
+cover
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.pot
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+.arcconfig
+
+# Tests
+.venv
+.testrepository
+
+# Emacs tmp files
+*~
+\#*
+.\#*
+
+# jMeter
+jmeter/jmeter.log
+
