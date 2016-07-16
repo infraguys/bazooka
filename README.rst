@@ -5,6 +5,7 @@ Bazooka - reliable HTTP client
     :target: https://travis-ci.org/phantomii/bazooka
 
 Features:
+
 * retries out of box
 * full-compatible interface with requests
 * by default client raises exception if status code isn't 2xx
