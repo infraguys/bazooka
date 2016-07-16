@@ -17,32 +17,40 @@ Features:
 Example
 =======
 
->>  from bazooka import client
->>
->>  c = client.Client('basic-auth-token',
->>                    'auth-user-token',
->>                    'correlation id or None')
->>
->>  print c.get('http://eis/').json()
+.. code-block:: python
+
+  >>  from bazooka import client
+  >>
+  >>  c = client.Client('basic-auth-token',
+  >>                    'auth-user-token',
+  >>                    'correlation id or None')
+  >>
+  >>  print c.get('http://eis/').json()
 
 or
 
->>  import bazooka
->>
->>  c = bazooka.Client(...)
+.. code-block:: python
+
+  >>  import bazooka
+  >>
+  >>  c = bazooka.Client(...)
 
 
 Duration logging is enabled by default for client.
 You can use log_duration flag to enable duration logging
 
->>  c = client.Client('basic-auth-token',
->>                    'auth-user-token',
->>		    'correlation id or None',
->>		    log_duration=False)
+.. code-block:: python
+
+  >>  c = client.Client('basic-auth-token',
+  >>                    'auth-user-token',
+  >>		    'correlation id or None',
+  >>		    log_duration=False)
 
   or
 
->>  c.log_duration = False
+.. code-block:: python
+
+  >>  c.log_duration = False
 
 TODO
 ====
