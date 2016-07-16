@@ -21,11 +21,10 @@ Example
 
   >>  from bazooka import client
   >>
-  >>  c = client.Client('basic-auth-token',
-  >>                    'auth-user-token',
-  >>                    'correlation id or None')
+  >>  c = client.Client()
   >>
   >>  print c.get('http://eis/').json()
+
 
 or
 
@@ -41,16 +40,15 @@ You can use log_duration flag to enable duration logging
 
 .. code-block:: python
 
-  >>  c = client.Client('basic-auth-token',
-  >>                    'auth-user-token',
-  >>		    'correlation id or None',
-  >>		    log_duration=False)
+  >>  c = client.Client(log_duration=False)
+
 
   or
 
 .. code-block:: python
 
   >>  c.log_duration = False
+
 
 TODO
 ====
