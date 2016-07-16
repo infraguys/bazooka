@@ -11,7 +11,6 @@ Features:
 * by default client raises exception if status code isn't 2xx
 * curl-like logging out of box
 * correlation-id support
-* Telstra-authentication support
 
 
 Example
