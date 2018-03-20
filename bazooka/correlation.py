@@ -19,8 +19,7 @@ import logging
 
 
 class CorrelationLoggerAdapter(logging.LoggerAdapter):
-    """It writes correlation id for each log entry
-    """
+    """It writes correlation id for each log entry"""
 
     def __init__(self, logger, correlation_id):
         super(CorrelationLoggerAdapter, self).__init__(logger, {})
