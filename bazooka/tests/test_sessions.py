@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import mock
+from six import moves
 
 from bazooka.tests import base
 
@@ -30,7 +31,7 @@ def fake_retry(*args, **kwargs):
 def import_sessions():
     """Loads module for testing with mocked decorator."""
     import bazooka.sessions
-    reload(bazooka.sessions)
+    moves.reload_module(bazooka.sessions)
     return bazooka.sessions
 
 

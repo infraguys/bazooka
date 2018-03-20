@@ -86,7 +86,7 @@ class CurlLoggingMixinTestCase(base.TestCase):
                                ("private1", "private2")):
             filtered = self.mixin._hide_sensitive_data(data)
 
-            self.assertItemsEqual(
+            self.assertDictEqual(
                 filtered,
                 {"public1": 1,
                  "public2": 2,

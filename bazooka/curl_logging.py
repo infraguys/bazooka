@@ -50,7 +50,7 @@ class CurlLoggingMixin(object):
         headers = self._hide_sensitive_data(dict(request.headers))
 
         parameters['headers'] = ' '.join([
-            "-H '%s: %s'" % (k, v) for k, v in headers.iteritems()])
+            "-H '%s: %s'" % (k, v) for k, v in headers.items()])
 
         parameters['data'] = (("-d '%s'" % request.body)
                               if request.body is not None else '')

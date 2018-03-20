@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import mock
+from six import moves
 
 from bazooka.tests import base
 
@@ -30,7 +31,7 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
         verify_ssl = mock.Mock()
         # XXX(Alexey Zasimov): Restore ReliableSession after mock.
         #                      IsolatedClassTestCases doesn't work correctly.
-        reload(client)
+        moves.reload_module(client)
         session = client.MicroserviceSession(
             auth=auth,
             verify_ssl=verify_ssl)
@@ -44,7 +45,7 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
         correlation_id_header_name = mock.Mock()
         # XXX(Alexey Zasimov): Restore ReliableSession after mock.
         #                      IsolatedClassTestCases doesn't work correctly.
-        reload(client)
+        moves.reload_module(client)
         session = client.MicroserviceSession(
             auth=auth,
             verify_ssl=verify_ssl,
@@ -64,7 +65,7 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
 
         # XXX(Alexey Zasimov): Restore ReliableSession after mock.
         #                      IsolatedClassTestCases doesn't work correctly.
-        reload(client)
+        moves.reload_module(client)
 
         session = client.MicroserviceSession(
             auth=auth,
