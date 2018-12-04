@@ -18,8 +18,10 @@
 import time
 
 import pyretries
-
+from requests import exceptions
 from requests import sessions
+
+from bazooka import exceptions as exc
 
 
 class ReliableSession(sessions.Session):
@@ -97,5 +99,8 @@ class ReliableSession(sessions.Session):
             request_time = time.time() - start_time
 
         self._log_response(response, request_time)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except exceptions.HTTPError as e:
+            exc.wrap_to_bazooka_exception(e)
         return response
