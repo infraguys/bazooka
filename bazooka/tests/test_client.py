@@ -21,6 +21,7 @@ from six import moves
 from bazooka.tests import base
 
 from bazooka import client
+from bazooka import sessions
 
 
 class MicroserviceSessionInitializationTestCase(base.TestCase):
@@ -289,6 +290,24 @@ class ClientTestCase(base.TestCase):
 
             request.assert_called_once_with(
                 'delete', url, fake=1)
+
+    def test_request_with_default_timeout(self):
+        """request method calls with valid defsault timeout."""
+
+        url = mock.Mock()
+        timeouts = [45, 60, None]
+
+        moves.reload_module(client)
+        for timeout in timeouts:
+            kwargs = {"default_timeout": timeout} if timeout else {}
+            http_client = client.Client(**kwargs)
+
+            session_cls = sessions.ReliableSession
+            with mock.patch.object(session_cls, "request") as request:
+                http_client.request('get', url)
+                expected = timeout or client.DEFAULT_TIMEOUT
+                request.assert_called_once_with(method='get', url=url,
+                                                timeout=expected)
 
 
 class MicroserviceClientTestCase(base.TestCase):

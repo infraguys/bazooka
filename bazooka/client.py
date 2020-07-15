@@ -23,6 +23,8 @@ from bazooka import correlation
 from bazooka import curl_logging
 from bazooka import sessions
 
+DEFAULT_TIMEOUT = 300
+
 
 class MicroserviceSession(correlation.CorrelationLoggerMixin,
                           curl_logging.CurlLoggingMixin,
@@ -94,7 +96,8 @@ class Client(object):
                  allow_redirects=True,
                  correlation_id=None,
                  correlation_id_header_name="correlationid",
-                 log_duration=True):
+                 log_duration=True,
+                 default_timeout=DEFAULT_TIMEOUT):
         super(Client, self).__init__()
         self._auth = auth
         self._verify_ssl = verify_ssl
@@ -102,6 +105,7 @@ class Client(object):
         self._correlation_id = correlation_id
         self._correlation_id_header_name = correlation_id_header_name
         self._log_duration = log_duration
+        self._default_timeout = default_timeout
 
     @property
     def correlation_id(self):
@@ -122,6 +126,7 @@ class Client(object):
                           self._correlation_id,
                           self._correlation_id_header_name,
                           self._log_duration) as session:
+            kwargs.setdefault("timeout", self._default_timeout)
             return session.request(method=method, url=url, **kwargs)
 
     def get(self, url, params=None, **kwargs):
@@ -176,7 +181,8 @@ class BasicAuthClient(Client):
                  allow_redirects=True,
                  correlation_id=None,
                  correlation_id_header_name="correlationid",
-                 log_duration=True):
+                 log_duration=True,
+                 default_timeout=DEFAULT_TIMEOUT):
         super(BasicAuthClient, self).__init__(
             req_auth.HTTPBasicAuth(
                 username=username,
@@ -185,5 +191,5 @@ class BasicAuthClient(Client):
             allow_redirects=allow_redirects,
             correlation_id=correlation_id,
             correlation_id_header_name=correlation_id_header_name,
-            log_duration=log_duration
-        )
+            log_duration=log_duration,
+            default_timeout=default_timeout)
