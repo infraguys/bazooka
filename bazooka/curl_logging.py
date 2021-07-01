@@ -27,20 +27,33 @@ class CurlLoggingMixin(object):
     overloads prepare_request method to add curl-like logging.
     """
 
-    SENSITIVE_HEADERS = ('token', 'Authorization', 'Token', 'BasicAuth')
+    # Should be uppercase
+    SENSITIVE_HEADERS = {
+        'TOKEN',
+        'AUTHORIZATION',
+        'BASICAUTH',
+        'X-API-KEY',
+        'X-AUTH-TOKEN',
+        'X-SERVICE-TOKEN',
+        'COOKIE'
+    }
 
     def prepare_request(self, request):
         request = super(CurlLoggingMixin, self).prepare_request(request)
         self._log_request(request)
         return request
 
+    @staticmethod
+    def _mask(value):
+        return '<%s>' % value
+
     def _hide_sensitive_data(self, data):
         if isinstance(data, dict):
             data = data.copy()
 
-            for param in self.SENSITIVE_HEADERS:
-                if param in data:
-                    data[param] = '<%s>' % param
+            for param in data:
+                if str(param).upper() in self.SENSITIVE_HEADERS:
+                    data[param] = self._mask(param)
 
         return data
 
