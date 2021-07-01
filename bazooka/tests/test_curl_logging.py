@@ -83,7 +83,7 @@ class CurlLoggingMixinTestCase(base.TestCase):
 
         with mock.patch.object(self.mixin,
                                "SENSITIVE_HEADERS",
-                               ("private1", "private2")):
+                               ("PRIVATE1", "PRIVATE2")):
             filtered = self.mixin._hide_sensitive_data(data)
 
             self.assertDictEqual(
@@ -111,6 +111,31 @@ class CurlLoggingMixinTestCase(base.TestCase):
             self.assertEqual(
                 self.mixin._curlify_request(request),
                 "curl -X 'GET' -H 'H1: 1' -H 'H2: 2' -d 'body' http://super")
+
+    def test_hide_sensitive_data(self):
+        fake_value = "fake_value"
+
+        seq = curl_logging.CurlLoggingMixin.SENSITIVE_HEADERS
+
+        secret_payload = {k: fake_value for k in seq}
+        cleaned_secret_payload = self.mixin._hide_sensitive_data(
+            secret_payload)
+
+        non_secret_payload = {"%s_non_secret" % k: fake_value for k in seq}
+        cleaned_non_secret_payload = self.mixin._hide_sensitive_data(
+            non_secret_payload)
+
+        for k, v in cleaned_secret_payload.items():
+            self.assertEqual(self.mixin._mask(k), v)
+
+        for v in cleaned_non_secret_payload.values():
+            self.assertEqual(v, fake_value)
+
+    def test_hide_sensitive_data_mask_value(self):
+        value = "abc"
+        expected_value = '<%s>' % value
+
+        self.assertEqual(self.mixin._mask(value), expected_value)
 
     def test_log_request_sequence(self):
         """_log_request sequence is valid."""
