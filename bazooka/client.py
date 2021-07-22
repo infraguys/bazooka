@@ -111,6 +111,10 @@ class Client(object):
     def correlation_id(self):
         return self._correlation_id
 
+    @correlation_id.setter
+    def correlation_id(self, val):
+        self._correlation_id = val
+
     @property
     def log_duration(self):
         return self._log_duration
