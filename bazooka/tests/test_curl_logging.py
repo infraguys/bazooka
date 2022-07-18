@@ -74,8 +74,8 @@ class CurlLoggingMixinTestCase(base.TestCase):
                 log_request.assert_called_once_with(
                     request)
 
-    def test_hide_sensitive_data_is_dict(self):
-        """_hide_sensitive_data hide value for private1 and private2."""
+    def test_hide_sensitive_headers_is_dict(self):
+        """_hide_sensitive_headers hide value for private1 and private2."""
         data = {"public1": 1,
                 "public2": 2,
                 "private1": "a",
@@ -84,7 +84,7 @@ class CurlLoggingMixinTestCase(base.TestCase):
         with mock.patch.object(self.mixin,
                                "SENSITIVE_HEADERS",
                                ("PRIVATE1", "PRIVATE2")):
-            filtered = self.mixin._hide_sensitive_data(data)
+            filtered = self.mixin._hide_sensitive_headers(data)
 
             self.assertDictEqual(
                 filtered,
@@ -106,23 +106,23 @@ class CurlLoggingMixinTestCase(base.TestCase):
              ("H2", "2")])
 
         with mock.patch.object(self.mixin,
-                               '_hide_sensitive_data',
+                               '_hide_sensitive_headers',
                                return_value=headers):
             self.assertEqual(
                 self.mixin._curlify_request(request),
                 "curl -X 'GET' -H 'H1: 1' -H 'H2: 2' -d 'body' http://super")
 
-    def test_hide_sensitive_data(self):
+    def test_hide_sensitive_headers(self):
         fake_value = "fake_value"
 
         seq = curl_logging.CurlLoggingMixin.SENSITIVE_HEADERS
 
         secret_payload = {k: fake_value for k in seq}
-        cleaned_secret_payload = self.mixin._hide_sensitive_data(
+        cleaned_secret_payload = self.mixin._hide_sensitive_headers(
             secret_payload)
 
         non_secret_payload = {"%s_non_secret" % k: fake_value for k in seq}
-        cleaned_non_secret_payload = self.mixin._hide_sensitive_data(
+        cleaned_non_secret_payload = self.mixin._hide_sensitive_headers(
             non_secret_payload)
 
         for k, v in cleaned_secret_payload.items():
@@ -131,7 +131,7 @@ class CurlLoggingMixinTestCase(base.TestCase):
         for v in cleaned_non_secret_payload.values():
             self.assertEqual(v, fake_value)
 
-    def test_hide_sensitive_data_mask_value(self):
+    def test_hide_sensitive_headers_mask_value(self):
         value = "abc"
         expected_value = '<%s>' % value
 
