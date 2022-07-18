@@ -47,7 +47,7 @@ class CurlLoggingMixin(object):
     def _mask(value):
         return '<%s>' % value
 
-    def _hide_sensitive_data(self, data):
+    def _hide_sensitive_headers(self, data):
         if isinstance(data, dict):
             data = data.copy()
 
@@ -60,7 +60,7 @@ class CurlLoggingMixin(object):
     def _curlify_request(self, request):
         """OpenStack approach for human-readable requests logging."""
         parameters = dict()
-        headers = self._hide_sensitive_data(dict(request.headers))
+        headers = self._hide_sensitive_headers(dict(request.headers))
 
         parameters['headers'] = ' '.join([
             "-H '%s: %s'" % (k, v) for k, v in headers.items()])
