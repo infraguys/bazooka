@@ -57,6 +57,9 @@ class CurlLoggingMixin(object):
 
         return data
 
+    def _sanitize_body(self, body):
+        return body
+
     def _curlify_request(self, request):
         """OpenStack approach for human-readable requests logging."""
         parameters = dict()
@@ -65,7 +68,7 @@ class CurlLoggingMixin(object):
         parameters['headers'] = ' '.join([
             "-H '%s: %s'" % (k, v) for k, v in headers.items()])
 
-        parameters['data'] = (("-d '%s'" % request.body)
+        parameters['data'] = (("-d '%s'" % self._sanitize_body(request.body))
                               if request.body is not None else '')
 
         parameters['method'] = "-X '%s'" % request.method
@@ -77,3 +80,10 @@ class CurlLoggingMixin(object):
         logger = self.get_logger()
         curl_cmd = self._curlify_request(request)
         logger.info('HTTP(s) request: %s', curl_cmd)
+
+
+class SensitiveCurlLoggingMixin(CurlLoggingMixin):
+    SANITIZED_PLUG = '<SENSITIVE_DATA>'
+
+    def _sanitize_body(self, body):
+        return self.SANITIZED_PLUG

@@ -24,10 +24,11 @@ from bazooka.tests import base
 from bazooka import curl_logging
 
 
-class CurlLoggingMixinTestCase(base.TestCase):
+class BaseMixinTestCase(base.TestCase):
+    mixin_class = None
 
     def setUp(self):
-        """Test CurlLoggingMixin
+        """BaseMixinTestCase
 
         Declare TestedClass with CurlLoggingMixin.
         Set SuperClass as a parent for TestClass.
@@ -41,16 +42,19 @@ class CurlLoggingMixinTestCase(base.TestCase):
             def get_logger(self):
                 pass
 
-        class TestedClass(curl_logging.CurlLoggingMixin,
-                          SuperClass):
+        class TestedClass(self.mixin_class, SuperClass):
             pass
 
         self.SuperClass = SuperClass
         self.TestedClass = TestedClass
 
-        super(CurlLoggingMixinTestCase, self).setUp()
+        super(BaseMixinTestCase, self).setUp()
 
         self.mixin = TestedClass()
+
+
+class CurlLoggingMixinTestCase(BaseMixinTestCase):
+    mixin_class = curl_logging.CurlLoggingMixin
 
     def test_prepare_request_calls_log_request(self):
         """prepare_requests invokes super method and _log_request."""
@@ -162,3 +166,26 @@ class CurlLoggingMixinTestCase(base.TestCase):
                 logger.info.assert_called_once_with(
                     'HTTP(s) request: %s',
                     curl_cmd)
+
+
+class SensitiveCurlLoggingMixinTestCase(BaseMixinTestCase):
+    mixin_class = curl_logging.SensitiveCurlLoggingMixin
+
+    def test_curlify_request(self):
+        request = mock.MagicMock()
+        request.headers = mock.MagicMock()
+        request.body = "very_important_body"
+        request.method = "POST"
+        request.url = "http://super"
+
+        headers = collections.OrderedDict(
+            [("H1", "1"),
+             ("H2", "2")])
+
+        with mock.patch.object(self.mixin,
+                               '_hide_sensitive_headers',
+                               return_value=headers):
+            self.assertEqual(
+                self.mixin._curlify_request(request),
+                "curl -X 'POST' -H 'H1: 1' -H 'H2: 2' -d '%s' "
+                "http://super" % self.mixin.SANITIZED_PLUG)
