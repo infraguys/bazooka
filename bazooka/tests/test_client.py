@@ -78,6 +78,27 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
         self.assertTrue(session.log_duration)
 
 
+class SensitiveMicroserviceSessionInitializationTestCase(base.TestCase):
+
+    def test_curl_mixin_override(self):
+        auth = mock.Mock()
+        verify_ssl = mock.Mock()
+        correlation_id = mock.Mock()
+        correlation_id_header_name = mock.Mock()
+        # XXX(Alexey Zasimov): Restore ReliableSession after mock.
+        #                      IsolatedClassTestCases doesn't work correctly.
+        moves.reload_module(client)
+        session = client.SensitiveMicroserviceSession(
+            auth=auth,
+            verify_ssl=verify_ssl,
+            correlation_id=correlation_id,
+            correlation_id_header_name=correlation_id_header_name)
+
+        self.assertEqual(
+            session._sanitize_body('123'),
+            session.SANITIZED_PLUG)
+
+
 class MicroserviceSessionTestCase(base.TestCase):
 
     def setUp(self):
@@ -332,6 +353,32 @@ class MicroserviceClientTestCase(base.TestCase):
         self.assertIs(cli._correlation_id_header_name,
                       'correlation_id_header_name')
         self.assertIs(cli._log_duration, 'log_duration')
+
+
+class SensitiveMicroserviceClientTestCase(base.TestCase):
+
+    def test_client_instantiation(self):
+        """[Positive] is super called correct (Client class)."""
+
+        auth = mock.Mock()
+
+        cli = client.Client(
+            auth=auth,
+            verify_ssl='verify_ssl',
+            allow_redirects='allow_redirects',
+            correlation_id='correlation_id',
+            correlation_id_header_name='correlation_id_header_name',
+            log_duration='log_duration',
+            session=client.SensitiveMicroserviceSession)
+
+        self.assertIs(cli._auth, auth)
+        self.assertIs(cli._verify_ssl, 'verify_ssl')
+        self.assertIs(cli._allow_redirects, 'allow_redirects')
+        self.assertIs(cli._correlation_id, 'correlation_id')
+        self.assertIs(cli._correlation_id_header_name,
+                      'correlation_id_header_name')
+        self.assertIs(cli._log_duration, 'log_duration')
+        self.assertIs(cli.SESSION, client.SensitiveMicroserviceSession)
 
 
 class BasicAuthClientTestCase(base.TestCase):

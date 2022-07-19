@@ -64,6 +64,11 @@ class MicroserviceSession(correlation.CorrelationLoggerMixin,
                         response.text)
 
 
+class SensitiveMicroserviceSession(curl_logging.SensitiveCurlLoggingMixin,
+                                   MicroserviceSession):
+    pass
+
+
 class Client(object):
     """Warning! Client raises exceptions
 
@@ -97,7 +102,8 @@ class Client(object):
                  correlation_id=None,
                  correlation_id_header_name="correlationid",
                  log_duration=True,
-                 default_timeout=DEFAULT_TIMEOUT):
+                 default_timeout=DEFAULT_TIMEOUT,
+                 session=None):
         super(Client, self).__init__()
         self._auth = auth
         self._verify_ssl = verify_ssl
@@ -106,6 +112,8 @@ class Client(object):
         self._correlation_id_header_name = correlation_id_header_name
         self._log_duration = log_duration
         self._default_timeout = default_timeout
+        if session:
+            self.SESSION = session
 
     @property
     def correlation_id(self):
