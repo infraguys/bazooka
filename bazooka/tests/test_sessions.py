@@ -27,7 +27,7 @@ def fake_retry(*args, **kwargs):
     return wrapper
 
 
-@mock.patch('pyretries.network.retry', fake_retry)
+@mock.patch('yretry.network.retry', fake_retry)
 def import_sessions():
     """Loads module for testing with mocked decorator."""
     import bazooka.sessions
