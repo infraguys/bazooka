@@ -17,7 +17,7 @@
 
 import time
 
-import pyretries
+import yretry
 from requests import exceptions
 from requests import sessions
 
@@ -27,8 +27,8 @@ from bazooka import exceptions as exc
 def retry_on_network_failure(error):
     """Return True on retriable error"""
     return ((isinstance(error, exc.BaseHTTPException) and
-             error.code in pyretries.network.RETRY_HTTP_CODES)
-            or pyretries.network.is_network_failure(error))
+             error.code in yretry.network.RETRY_HTTP_CODES)
+            or yretry.network.is_network_failure(error))
 
 
 class ReliableSession(sessions.Session):
@@ -54,7 +54,7 @@ class ReliableSession(sessions.Session):
         """
         pass
 
-    @pyretries.network.retry(retry_on=retry_on_network_failure)
+    @yretry.network.retry(retry_on=retry_on_network_failure)
     def request(self, method, url,
                 params=None,
                 data=None,

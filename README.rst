@@ -1,8 +1,8 @@
 Bazooka - reliable HTTP client
 ==============================
 
-.. image:: https://travis-ci.org/phantomii/bazooka.svg?branch=master
-    :target: https://travis-ci.org/phantomii/bazooka
+.. image:: https://github.com/infraguys/bazooka/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/infraguys/bazooka/actions/workflows/tests.yml
 
 Features:
 
@@ -45,9 +45,3 @@ or
 .. code-block:: python
 
   >>  c.log_duration = False
-
-
-TODO
-====
-
-  * timeouts support
