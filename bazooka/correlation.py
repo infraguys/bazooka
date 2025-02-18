@@ -26,7 +26,7 @@ class CorrelationLoggerAdapter(logging.LoggerAdapter):
         self._correlation_id = correlation_id
 
     def process(self, msg, kwargs):
-        return '[correlation_id=%s] %s' % (self._correlation_id, msg), kwargs
+        return "[correlation_id=%s] %s" % (self._correlation_id, msg), kwargs
 
 
 class CorrelationLoggerMixin(object):
@@ -41,7 +41,5 @@ class CorrelationLoggerMixin(object):
     """
 
     def get_logger(self):
-        adapter = CorrelationLoggerAdapter(
-            self._logger,
-            self.correlation_id)
+        adapter = CorrelationLoggerAdapter(self._logger, self.correlation_id)
         return adapter

@@ -32,20 +32,22 @@ class FakeResponse(object):
     def raise_for_status(self):
         self.call_count += 1
         raise bazooka.exceptions.BaseHTTPException(
-            mock.Mock(response=mock.MagicMock(status_code=500)))
+            mock.Mock(response=mock.MagicMock(status_code=500))
+        )
 
 
 class RetryableSessionTestCase(base.TestCase):
 
-    @mock.patch('time.sleep', return_value=None)
+    @mock.patch("time.sleep", return_value=None)
     def test_request_get_retry(self, _patched_sleep):
         """Check that request played more than once on error"""
         moves.reload_module(bazooka.sessions)
         session = bazooka.sessions.ReliableSession()
         response = FakeResponse()
 
-        with mock.patch('requests.sessions.Session.request',
-                        return_value=response):
+        with mock.patch(
+            "requests.sessions.Session.request", return_value=response
+        ):
             with self.assertRaises(bazooka.exceptions.BaseHTTPException):
-                session.request('GET', '')
+                session.request("GET", "")
         self.assertGreater(response.call_count, 1)

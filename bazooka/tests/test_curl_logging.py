@@ -61,41 +61,35 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         request = mock.MagicMock()
 
         with mock.patch.object(
-                self.SuperClass,
-                'prepare_request') as prepare_request:
-            with mock.patch.object(
-                    self.mixin,
-                    '_log_request') as log_request:
+            self.SuperClass, "prepare_request"
+        ) as prepare_request:
+            with mock.patch.object(self.mixin, "_log_request") as log_request:
                 prepare_request.return_value = request
 
-                self.assertEqual(
-                    self.mixin.prepare_request(request),
-                    request)
+                self.assertEqual(self.mixin.prepare_request(request), request)
 
-                prepare_request.assert_called_once_with(
-                    request)
+                prepare_request.assert_called_once_with(request)
 
-                log_request.assert_called_once_with(
-                    request)
+                log_request.assert_called_once_with(request)
 
     def test_hide_sensitive_headers_is_dict(self):
         """_hide_sensitive_headers hide value for private1 and private2."""
-        data = {"public1": 1,
-                "public2": 2,
-                "private1": "a",
-                "private2": "b"}
+        data = {"public1": 1, "public2": 2, "private1": "a", "private2": "b"}
 
-        with mock.patch.object(self.mixin,
-                               "SENSITIVE_HEADERS",
-                               ("PRIVATE1", "PRIVATE2")):
+        with mock.patch.object(
+            self.mixin, "SENSITIVE_HEADERS", ("PRIVATE1", "PRIVATE2")
+        ):
             filtered = self.mixin._hide_sensitive_headers(data)
 
             self.assertDictEqual(
                 filtered,
-                {"public1": 1,
-                 "public2": 2,
-                 "private1": "<private1>",
-                 "private2": "<private2>"})
+                {
+                    "public1": 1,
+                    "public2": 2,
+                    "private1": "<private1>",
+                    "private2": "<private2>",
+                },
+            )
 
     def test_curlify_request(self):
         """CURLification is working."""
@@ -105,16 +99,15 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         request.method = "GET"
         request.url = "http://super"
 
-        headers = collections.OrderedDict(
-            [("H1", "1"),
-             ("H2", "2")])
+        headers = collections.OrderedDict([("H1", "1"), ("H2", "2")])
 
-        with mock.patch.object(self.mixin,
-                               '_hide_sensitive_headers',
-                               return_value=headers):
+        with mock.patch.object(
+            self.mixin, "_hide_sensitive_headers", return_value=headers
+        ):
             self.assertEqual(
                 self.mixin._curlify_request(request),
-                "curl -X 'GET' -H 'H1: 1' -H 'H2: 2' -d 'body' http://super")
+                "curl -X 'GET' -H 'H1: 1' -H 'H2: 2' -d 'body' http://super",
+            )
 
     def test_hide_sensitive_headers(self):
         fake_value = "fake_value"
@@ -123,11 +116,13 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
 
         secret_payload = {k: fake_value for k in seq}
         cleaned_secret_payload = self.mixin._hide_sensitive_headers(
-            secret_payload)
+            secret_payload
+        )
 
         non_secret_payload = {"%s_non_secret" % k: fake_value for k in seq}
         cleaned_non_secret_payload = self.mixin._hide_sensitive_headers(
-            non_secret_payload)
+            non_secret_payload
+        )
 
         for k, v in cleaned_secret_payload.items():
             self.assertEqual(self.mixin._mask(k), v)
@@ -137,7 +132,7 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
 
     def test_hide_sensitive_headers_mask_value(self):
         value = "abc"
-        expected_value = '<%s>' % value
+        expected_value = "<%s>" % value
 
         self.assertEqual(self.mixin._mask(value), expected_value)
 
@@ -146,17 +141,15 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         request = mock.Mock()
 
         logger = mock.MagicMock()
-        curl_cmd = 'curlification'
+        curl_cmd = "curlification"
 
         with mock.patch.object(
-                self.mixin,
-                'get_logger',
-                return_value=logger) as get_logger:
+            self.mixin, "get_logger", return_value=logger
+        ) as get_logger:
 
             with mock.patch.object(
-                    self.mixin,
-                    '_curlify_request',
-                    return_value=curl_cmd) as curlify_request:
+                self.mixin, "_curlify_request", return_value=curl_cmd
+            ) as curlify_request:
 
                 self.mixin._log_request(request)
 
@@ -164,8 +157,8 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
                 curlify_request.assert_called_once_with(request)
 
                 logger.info.assert_called_once_with(
-                    'HTTP(s) request: %s',
-                    curl_cmd)
+                    "HTTP(s) request: %s", curl_cmd
+                )
 
 
 class SensitiveCurlLoggingMixinTestCase(BaseMixinTestCase):
@@ -178,14 +171,13 @@ class SensitiveCurlLoggingMixinTestCase(BaseMixinTestCase):
         request.method = "POST"
         request.url = "http://super"
 
-        headers = collections.OrderedDict(
-            [("H1", "1"),
-             ("H2", "2")])
+        headers = collections.OrderedDict([("H1", "1"), ("H2", "2")])
 
-        with mock.patch.object(self.mixin,
-                               '_hide_sensitive_headers',
-                               return_value=headers):
+        with mock.patch.object(
+            self.mixin, "_hide_sensitive_headers", return_value=headers
+        ):
             self.assertEqual(
                 self.mixin._curlify_request(request),
                 "curl -X 'POST' -H 'H1: 1' -H 'H2: 2' -d '%s' "
-                "http://super" % self.mixin.SANITIZED_PLUG)
+                "http://super" % self.mixin.SANITIZED_PLUG,
+            )
