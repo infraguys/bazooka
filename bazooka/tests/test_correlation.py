@@ -26,23 +26,25 @@ class CorrelationLoggerAdapterTestCase(base.IsolatedClassTestCase):
 
     def setUp(self):
         super(CorrelationLoggerAdapterTestCase, self).setUp(
-            mock.Mock, correlation.CorrelationLoggerAdapter)
+            mock.Mock, correlation.CorrelationLoggerAdapter
+        )
         logger = mock.Mock()
-        self.correlation_id = 'fake correlation id'
+        self.correlation_id = "fake correlation id"
         self.adapter = correlation.CorrelationLoggerAdapter(
-            logger,
-            self.correlation_id)
+            logger, self.correlation_id
+        )
 
     def test_process(self):
         """Process returns mmessage with correlation ID."""
-        msg = 'fake message'
+        msg = "fake message"
         kwargs = mock.Mock()
 
         res_msg, res_kwargs = self.adapter.process(msg, kwargs)
 
         self.assertEqual(res_kwargs, kwargs)
-        self.assertEqual(res_msg,
-                         "[correlation_id=fake correlation id] fake message")
+        self.assertEqual(
+            res_msg, "[correlation_id=fake correlation id] fake message"
+        )
 
 
 class CorrelationLoggerMixinTestCase(base.TestCase):
@@ -58,9 +60,8 @@ class CorrelationLoggerMixinTestCase(base.TestCase):
 
         self.mixin = TestedClass()
 
-    @mock.patch('bazooka.correlation.CorrelationLoggerAdapter')
-    def test_get_logger_returns_adapter(self,
-                                        CorrelationLoggerAdapter):
+    @mock.patch("bazooka.correlation.CorrelationLoggerAdapter")
+    def test_get_logger_returns_adapter(self, CorrelationLoggerAdapter):
         """CorrelationLoggerMixin.get_logger returns adapter"""
         adapter = mock.Mock()
 
@@ -68,13 +69,13 @@ class CorrelationLoggerMixinTestCase(base.TestCase):
 
         self.assertEqual(self.mixin.get_logger(), adapter)
 
-    @mock.patch('bazooka.correlation.CorrelationLoggerAdapter')
+    @mock.patch("bazooka.correlation.CorrelationLoggerAdapter")
     def test_get_logger_integration_with_adapter(
-            self,
-            CorrelationLoggerAdapter):
+        self, CorrelationLoggerAdapter
+    ):
         """Check integration with CorrelationLoggerAdapter"""
         self.mixin.get_logger()
 
         CorrelationLoggerAdapter.assert_called_once_with(
-            self.mixin._logger,
-            self.mixin.correlation_id)
+            self.mixin._logger, self.mixin.correlation_id
+        )

@@ -34,9 +34,9 @@ class IsolatedClassTestCase(TestCase):
 
     def setUp(self, base_class, tested_class):
         super(IsolatedClassTestCase, self).setUp()
-        self.base_class_patcher = (
-            mock.patch.object(tested_class,
-                              "__bases__", (base_class,)))
+        self.base_class_patcher = mock.patch.object(
+            tested_class, "__bases__", (base_class,)
+        )
         self.base_class_patcher.start()
         self.base_class_patcher.is_local = True
 

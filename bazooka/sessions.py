@@ -26,9 +26,10 @@ from bazooka import exceptions as exc
 
 def retry_on_network_failure(error):
     """Return True on retriable error"""
-    return ((isinstance(error, exc.BaseHTTPException) and
-             error.code in yretry.network.RETRY_HTTP_CODES)
-            or yretry.network.is_network_failure(error))
+    return (
+        isinstance(error, exc.BaseHTTPException)
+        and error.code in yretry.network.RETRY_HTTP_CODES
+    ) or yretry.network.is_network_failure(error)
 
 
 class ReliableSession(sessions.Session):
@@ -55,21 +56,25 @@ class ReliableSession(sessions.Session):
         pass
 
     @yretry.network.retry(retry_on=retry_on_network_failure)
-    def request(self, method, url,
-                params=None,
-                data=None,
-                headers=None,
-                cookies=None,
-                files=None,
-                auth=None,
-                timeout=None,
-                allow_redirects=True,
-                proxies=None,
-                hooks=None,
-                stream=None,
-                verify=None,
-                cert=None,
-                json=None):
+    def request(
+        self,
+        method,
+        url,
+        params=None,
+        data=None,
+        headers=None,
+        cookies=None,
+        files=None,
+        auth=None,
+        timeout=None,
+        allow_redirects=True,
+        proxies=None,
+        hooks=None,
+        stream=None,
+        verify=None,
+        cert=None,
+        json=None,
+    ):
         """See documentation for requests.sessions.Session.request
 
         Raises exception if status code isn't 2xx
@@ -100,7 +105,8 @@ class ReliableSession(sessions.Session):
             stream=stream,
             verify=verify,
             cert=cert,
-            json=json)
+            json=json,
+        )
 
         if log_duration:
             request_time = time.time() - start_time

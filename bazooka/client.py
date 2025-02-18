@@ -26,13 +26,20 @@ from bazooka import sessions
 DEFAULT_TIMEOUT = 300
 
 
-class MicroserviceSession(correlation.CorrelationLoggerMixin,
-                          curl_logging.CurlLoggingMixin,
-                          sessions.ReliableSession):
+class MicroserviceSession(
+    correlation.CorrelationLoggerMixin,
+    curl_logging.CurlLoggingMixin,
+    sessions.ReliableSession,
+):
 
-    def __init__(self, auth, verify_ssl, correlation_id=None,
-                 correlation_id_header_name="correlationid",
-                 log_duration=True):
+    def __init__(
+        self,
+        auth,
+        verify_ssl,
+        correlation_id=None,
+        correlation_id_header_name="correlationid",
+        log_duration=True,
+    ):
         super(MicroserviceSession, self).__init__()
         self.log_duration = log_duration
         self.auth = auth
@@ -50,22 +57,27 @@ class MicroserviceSession(correlation.CorrelationLoggerMixin,
         """Write to log HTTP status code."""
         logger = self.get_logger()
         if request_time is None:
-            logger.info("Response: from %s with status code %s %s: %s",
-                        response.url,
-                        response.status_code,
-                        response.reason,
-                        response.text)
+            logger.info(
+                "Response: from %s with status code %s %s: %s",
+                response.url,
+                response.status_code,
+                response.reason,
+                response.text,
+            )
         else:
-            logger.info("Response(%s s): from %s with status code %s %s: %s",
-                        request_time,
-                        response.url,
-                        response.status_code,
-                        response.reason,
-                        response.text)
+            logger.info(
+                "Response(%s s): from %s with status code %s %s: %s",
+                request_time,
+                response.url,
+                response.status_code,
+                response.reason,
+                response.text,
+            )
 
 
-class SensitiveMicroserviceSession(curl_logging.SensitiveCurlLoggingMixin,
-                                   MicroserviceSession):
+class SensitiveMicroserviceSession(
+    curl_logging.SensitiveCurlLoggingMixin, MicroserviceSession
+):
     pass
 
 
@@ -95,15 +107,17 @@ class Client(object):
 
     SESSION = MicroserviceSession
 
-    def __init__(self,
-                 auth=None,
-                 verify_ssl=True,
-                 allow_redirects=True,
-                 correlation_id=None,
-                 correlation_id_header_name="correlationid",
-                 log_duration=True,
-                 default_timeout=DEFAULT_TIMEOUT,
-                 session=None):
+    def __init__(
+        self,
+        auth=None,
+        verify_ssl=True,
+        allow_redirects=True,
+        correlation_id=None,
+        correlation_id_header_name="correlationid",
+        log_duration=True,
+        default_timeout=DEFAULT_TIMEOUT,
+        session=None,
+    ):
         super(Client, self).__init__()
         self._auth = auth
         self._verify_ssl = verify_ssl
@@ -133,44 +147,46 @@ class Client(object):
 
     def request(self, method, url, **kwargs):
         """See documentation for requests.api.request."""
-        with self.SESSION(self._auth,
-                          self._verify_ssl,
-                          self._correlation_id,
-                          self._correlation_id_header_name,
-                          self._log_duration) as session:
+        with self.SESSION(
+            self._auth,
+            self._verify_ssl,
+            self._correlation_id,
+            self._correlation_id_header_name,
+            self._log_duration,
+        ) as session:
             kwargs.setdefault("timeout", self._default_timeout)
             return session.request(method=method, url=url, **kwargs)
 
     def get(self, url, params=None, **kwargs):
         """See documentation for requests.api.get."""
-        kwargs.setdefault('allow_redirects', self._allow_redirects)
-        return self.request('get', url, params=params, **kwargs)
+        kwargs.setdefault("allow_redirects", self._allow_redirects)
+        return self.request("get", url, params=params, **kwargs)
 
     def options(self, url, **kwargs):
         """See documentation for requests.api.options."""
-        kwargs.setdefault('allow_redirects', self._allow_redirects)
-        return self.request('options', url, **kwargs)
+        kwargs.setdefault("allow_redirects", self._allow_redirects)
+        return self.request("options", url, **kwargs)
 
     def head(self, url, **kwargs):
         """See documentation for requests.api.head."""
-        kwargs.setdefault('allow_redirects', False)
-        return self.request('head', url, **kwargs)
+        kwargs.setdefault("allow_redirects", False)
+        return self.request("head", url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
         """See documentation for requests.api.post."""
-        return self.request('post', url, data=data, json=json, **kwargs)
+        return self.request("post", url, data=data, json=json, **kwargs)
 
     def put(self, url, data=None, **kwargs):
         """See documentation for requests.api.put."""
-        return self.request('put', url, data=data, **kwargs)
+        return self.request("put", url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
         """See documentation for requests.api.patch."""
-        return self.request('patch', url, data=data, **kwargs)
+        return self.request("patch", url, data=data, **kwargs)
 
     def delete(self, url, **kwargs):
         """See documentation for requests.api.delete."""
-        return self.request('delete', url, **kwargs)
+        return self.request("delete", url, **kwargs)
 
 
 class BasicAuthClient(Client):
@@ -186,22 +202,23 @@ class BasicAuthClient(Client):
 
     """
 
-    def __init__(self,
-                 username,
-                 password,
-                 verify_ssl=True,
-                 allow_redirects=True,
-                 correlation_id=None,
-                 correlation_id_header_name="correlationid",
-                 log_duration=True,
-                 default_timeout=DEFAULT_TIMEOUT):
+    def __init__(
+        self,
+        username,
+        password,
+        verify_ssl=True,
+        allow_redirects=True,
+        correlation_id=None,
+        correlation_id_header_name="correlationid",
+        log_duration=True,
+        default_timeout=DEFAULT_TIMEOUT,
+    ):
         super(BasicAuthClient, self).__init__(
-            req_auth.HTTPBasicAuth(
-                username=username,
-                password=password),
+            req_auth.HTTPBasicAuth(username=username, password=password),
             verify_ssl=verify_ssl,
             allow_redirects=allow_redirects,
             correlation_id=correlation_id,
             correlation_id_header_name=correlation_id_header_name,
             log_duration=log_duration,
-            default_timeout=default_timeout)
+            default_timeout=default_timeout,
+        )

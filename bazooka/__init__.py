@@ -24,10 +24,4 @@ from bazooka.api import request
 from bazooka.client import Client
 
 
-__all__ = ['request',
-           'get',
-           'post',
-           'put',
-           'delete',
-           'patch',
-           'Client']
+__all__ = ["request", "get", "post", "put", "delete", "patch", "Client"]

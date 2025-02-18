@@ -29,13 +29,13 @@ class CurlLoggingMixin(object):
 
     # Should be uppercase
     SENSITIVE_HEADERS = {
-        'TOKEN',
-        'AUTHORIZATION',
-        'BASICAUTH',
-        'X-API-KEY',
-        'X-AUTH-TOKEN',
-        'X-SERVICE-TOKEN',
-        'COOKIE'
+        "TOKEN",
+        "AUTHORIZATION",
+        "BASICAUTH",
+        "X-API-KEY",
+        "X-AUTH-TOKEN",
+        "X-SERVICE-TOKEN",
+        "COOKIE",
     }
 
     def prepare_request(self, request):
@@ -45,7 +45,7 @@ class CurlLoggingMixin(object):
 
     @staticmethod
     def _mask(value):
-        return '<%s>' % value
+        return "<%s>" % value
 
     def _hide_sensitive_headers(self, data):
         if isinstance(data, dict):
@@ -65,25 +65,29 @@ class CurlLoggingMixin(object):
         parameters = dict()
         headers = self._hide_sensitive_headers(dict(request.headers))
 
-        parameters['headers'] = ' '.join([
-            "-H '%s: %s'" % (k, v) for k, v in headers.items()])
+        parameters["headers"] = " ".join(
+            ["-H '%s: %s'" % (k, v) for k, v in headers.items()]
+        )
 
-        parameters['data'] = (("-d '%s'" % self._sanitize_body(request.body))
-                              if request.body is not None else '')
+        parameters["data"] = (
+            ("-d '%s'" % self._sanitize_body(request.body))
+            if request.body is not None
+            else ""
+        )
 
-        parameters['method'] = "-X '%s'" % request.method
-        parameters['url'] = request.url
+        parameters["method"] = "-X '%s'" % request.method
+        parameters["url"] = request.url
 
-        return 'curl %(method)s %(headers)s %(data)s %(url)s' % parameters
+        return "curl %(method)s %(headers)s %(data)s %(url)s" % parameters
 
     def _log_request(self, request):
         logger = self.get_logger()
         curl_cmd = self._curlify_request(request)
-        logger.info('HTTP(s) request: %s', curl_cmd)
+        logger.info("HTTP(s) request: %s", curl_cmd)
 
 
 class SensitiveCurlLoggingMixin(CurlLoggingMixin):
-    SANITIZED_PLUG = '<SENSITIVE_DATA>'
+    SANITIZED_PLUG = "<SENSITIVE_DATA>"
 
     def _sanitize_body(self, body):
         return self.SANITIZED_PLUG
