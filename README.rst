@@ -1,8 +1,8 @@
 Bazooka - reliable HTTP client
 ==============================
 
-.. image:: https://github.com/infraguys/bazooka/actions/workflows/tests.yml/badge.svg
-    :target: https://github.com/infraguys/bazooka/actions/workflows/tests.yml
+.. image:: https://github.com/infraguys/bazooka/actions/workflows/tests.yaml/badge.svg
+    :target: https://github.com/infraguys/bazooka/actions/workflows/tests.yaml
 
 Features:
 
