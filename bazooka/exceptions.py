@@ -56,10 +56,16 @@ class ForbiddenError(ClientError):
     pass
 
 
+class UnauthorizedError(ClientError):
+    pass
+
+
 def wrap_to_bazooka_exception(cause):
     if isinstance(cause, exceptions.HTTPError):
         if httplib.NOT_FOUND == cause.response.status_code:
             raise NotFoundError(cause)
+        elif httplib.UNAUTHORIZED == cause.response.status_code:
+            raise UnauthorizedError(cause)
         elif httplib.CONFLICT == cause.response.status_code:
             raise ConflictError(cause)
         elif httplib.BAD_REQUEST == cause.response.status_code:
