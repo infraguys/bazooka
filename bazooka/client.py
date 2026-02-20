@@ -31,7 +31,6 @@ class MicroserviceSession(
     curl_logging.CurlLoggingMixin,
     sessions.ReliableSession,
 ):
-
     def __init__(
         self,
         auth,
