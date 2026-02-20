@@ -41,10 +41,8 @@ sessions = import_sessions()
 
 
 class ReliableSessionTestCase(base.IsolatedClassTestCase):
-
     def setUp(self):
         class BaseSession(mock.MagicMock):
-
             def request(self, *args, **kwargs):
                 pass
 
@@ -80,9 +78,7 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
 
         response = mock.MagicMock()
 
-        with mock.patch.object(
-            self.BaseSession, "request", return_value=response
-        ):
+        with mock.patch.object(self.BaseSession, "request", return_value=response):
             self.BaseSession.request.return_value = response
 
             self.assertEqual(
@@ -133,9 +129,7 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
 
         response = mock.MagicMock()
 
-        with mock.patch.object(
-            self.BaseSession, "request", return_value=response
-        ):
+        with mock.patch.object(self.BaseSession, "request", return_value=response):
             self.BaseSession.request.return_value = response
 
             self.session.request(method, url)
@@ -154,12 +148,8 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
 
         response = mock.MagicMock()
 
-        with mock.patch.object(
-            self.BaseSession, "request", return_value=response
-        ):
-            with mock.patch.object(
-                self.session, "_log_response"
-            ) as log_response:
+        with mock.patch.object(self.BaseSession, "request", return_value=response):
+            with mock.patch.object(self.session, "_log_response") as log_response:
                 self.BaseSession.request.return_value = response
 
                 self.session.request(method, url)
@@ -188,12 +178,8 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
 
         self.session.log_duration = True
 
-        with mock.patch.object(
-            self.BaseSession, "request", return_value=response
-        ):
-            with mock.patch.object(
-                self.session, "_log_response"
-            ) as log_response:
+        with mock.patch.object(self.BaseSession, "request", return_value=response):
+            with mock.patch.object(self.session, "_log_response") as log_response:
                 self.BaseSession.request.return_value = response
 
                 self.session.request(method, url)

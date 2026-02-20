@@ -37,7 +37,6 @@ class FakeResponse(object):
 
 
 class RetryableSessionTestCase(base.TestCase):
-
     @mock.patch("time.sleep", return_value=None)
     def test_request_get_retry(self, _patched_sleep):
         """Check that request played more than once on error"""
@@ -45,9 +44,7 @@ class RetryableSessionTestCase(base.TestCase):
         session = bazooka.sessions.ReliableSession()
         response = FakeResponse()
 
-        with mock.patch(
-            "requests.sessions.Session.request", return_value=response
-        ):
+        with mock.patch("requests.sessions.Session.request", return_value=response):
             with self.assertRaises(bazooka.exceptions.BaseHTTPException):
                 session.request("GET", "")
         self.assertGreater(response.call_count, 1)

@@ -25,7 +25,6 @@ from bazooka import sessions
 
 
 class MicroserviceSessionInitializationTestCase(base.TestCase):
-
     def test_verify_ssl_flag(self):
         """[Positive] MicroserviceSession rewrites verify flag."""
         auth = mock.Mock()
@@ -52,9 +51,7 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
             correlation_id_header_name=correlation_id_header_name,
         )
 
-        self.assertEqual(
-            session.headers[correlation_id_header_name], correlation_id
-        )
+        self.assertEqual(session.headers[correlation_id_header_name], correlation_id)
 
     def test_log_duration_is_set(self):
         """[Positive] I can set log duration flag for MicroserviceSession."""
@@ -79,7 +76,6 @@ class MicroserviceSessionInitializationTestCase(base.TestCase):
 
 
 class SensitiveMicroserviceSessionInitializationTestCase(base.TestCase):
-
     def test_curl_mixin_override(self):
         auth = mock.Mock()
         verify_ssl = mock.Mock()
@@ -99,14 +95,11 @@ class SensitiveMicroserviceSessionInitializationTestCase(base.TestCase):
 
 
 class MicroserviceSessionTestCase(base.TestCase):
-
     def setUp(self):
         super(MicroserviceSessionTestCase, self).setUp()
         auth = mock.Mock()
         verify_ssl = mock.Mock()
-        self.session = client.MicroserviceSession(
-            auth=auth, verify_ssl=verify_ssl
-        )
+        self.session = client.MicroserviceSession(auth=auth, verify_ssl=verify_ssl)
 
     def test_log_response_without_request_time(self):
         """[Positive] Logging for response works."""
@@ -118,9 +111,7 @@ class MicroserviceSessionTestCase(base.TestCase):
         response.reason = "fake reason"
         response.text = "fake response"
 
-        with mock.patch.object(
-            self.session, "get_logger", return_value=logger
-        ):
+        with mock.patch.object(self.session, "get_logger", return_value=logger):
             self.assertIsNone(self.session._log_response(response))
 
             logger.info.assert_called_once_with(
@@ -143,12 +134,8 @@ class MicroserviceSessionTestCase(base.TestCase):
         response.reason = "fake reason"
         response.text = "fake response"
 
-        with mock.patch.object(
-            self.session, "get_logger", return_value=logger
-        ):
-            self.assertIsNone(
-                self.session._log_response(response, request_time)
-            )
+        with mock.patch.object(self.session, "get_logger", return_value=logger):
+            self.assertIsNone(self.session._log_response(response, request_time))
 
             logger.info.assert_called_once_with(
                 "Response(%s s): from %s with status code %s %s: %s",
@@ -161,7 +148,6 @@ class MicroserviceSessionTestCase(base.TestCase):
 
 
 class ClientTestCase(base.TestCase):
-
     def setUp(self):
         super(ClientTestCase, self).setUp()
 
@@ -251,9 +237,7 @@ class ClientTestCase(base.TestCase):
 
             self.assertEqual(self.client.head(url, **kwargs), response)
 
-            request.assert_called_once_with(
-                "head", url, allow_redirects=False, fake=1
-            )
+            request.assert_called_once_with("head", url, allow_redirects=False, fake=1)
 
     def test_post_calls_request(self):
         """get method calls request with valid arguments."""
@@ -268,13 +252,9 @@ class ClientTestCase(base.TestCase):
         with mock.patch.object(self.client, "request") as request:
             request.return_value = response
 
-            self.assertEqual(
-                self.client.post(url, data, json, **kwargs), response
-            )
+            self.assertEqual(self.client.post(url, data, json, **kwargs), response)
 
-            request.assert_called_once_with(
-                "post", url, data=data, json=json, fake=1
-            )
+            request.assert_called_once_with("post", url, data=data, json=json, fake=1)
 
     def test_put_calls_request(self):
         """get method calls request with valid arguments."""
@@ -322,13 +302,10 @@ class ClientTestCase(base.TestCase):
             with mock.patch.object(session_cls, "request") as request:
                 http_client.request("get", url)
                 expected = timeout or client.DEFAULT_TIMEOUT
-                request.assert_called_once_with(
-                    method="get", url=url, timeout=expected
-                )
+                request.assert_called_once_with(method="get", url=url, timeout=expected)
 
 
 class MicroserviceClientTestCase(base.TestCase):
-
     def test_client_instantiation(self):
         """[Positive] is super called correct (Client class)."""
 
@@ -347,14 +324,11 @@ class MicroserviceClientTestCase(base.TestCase):
         self.assertIs(cli._verify_ssl, "verify_ssl")
         self.assertIs(cli._allow_redirects, "allow_redirects")
         self.assertIs(cli._correlation_id, "correlation_id")
-        self.assertIs(
-            cli._correlation_id_header_name, "correlation_id_header_name"
-        )
+        self.assertIs(cli._correlation_id_header_name, "correlation_id_header_name")
         self.assertIs(cli._log_duration, "log_duration")
 
 
 class SensitiveMicroserviceClientTestCase(base.TestCase):
-
     def test_client_instantiation(self):
         """[Positive] is super called correct (Client class)."""
 
@@ -374,15 +348,12 @@ class SensitiveMicroserviceClientTestCase(base.TestCase):
         self.assertIs(cli._verify_ssl, "verify_ssl")
         self.assertIs(cli._allow_redirects, "allow_redirects")
         self.assertIs(cli._correlation_id, "correlation_id")
-        self.assertIs(
-            cli._correlation_id_header_name, "correlation_id_header_name"
-        )
+        self.assertIs(cli._correlation_id_header_name, "correlation_id_header_name")
         self.assertIs(cli._log_duration, "log_duration")
         self.assertIs(cli.SESSION, client.SensitiveMicroserviceSession)
 
 
 class BasicAuthClientTestCase(base.TestCase):
-
     @mock.patch("requests.auth.HTTPBasicAuth")
     def test_client_instantiation(self, auth_mock):
         """[Positive] is super called correct (BasicAuthClient class)."""
@@ -397,14 +368,10 @@ class BasicAuthClientTestCase(base.TestCase):
             log_duration="log_duration",
         )
 
-        auth_mock.assert_called_once_with(
-            username="username", password="password"
-        )
+        auth_mock.assert_called_once_with(username="username", password="password")
         self.assertIs(cli._auth, auth_mock())
         self.assertIs(cli._verify_ssl, "verify_ssl")
         self.assertIs(cli._allow_redirects, "allow_redirects")
         self.assertIs(cli._correlation_id, "correlation_id")
-        self.assertIs(
-            cli._correlation_id_header_name, "correlation_id_header_name"
-        )
+        self.assertIs(cli._correlation_id_header_name, "correlation_id_header_name")
         self.assertIs(cli._log_duration, "log_duration")

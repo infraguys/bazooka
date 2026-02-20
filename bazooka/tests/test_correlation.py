@@ -23,16 +23,13 @@ from bazooka import correlation
 
 
 class CorrelationLoggerAdapterTestCase(base.IsolatedClassTestCase):
-
     def setUp(self):
         super(CorrelationLoggerAdapterTestCase, self).setUp(
             mock.Mock, correlation.CorrelationLoggerAdapter
         )
         logger = mock.Mock()
         self.correlation_id = "fake correlation id"
-        self.adapter = correlation.CorrelationLoggerAdapter(
-            logger, self.correlation_id
-        )
+        self.adapter = correlation.CorrelationLoggerAdapter(logger, self.correlation_id)
 
     def test_process(self):
         """Process returns mmessage with correlation ID."""
@@ -42,18 +39,14 @@ class CorrelationLoggerAdapterTestCase(base.IsolatedClassTestCase):
         res_msg, res_kwargs = self.adapter.process(msg, kwargs)
 
         self.assertEqual(res_kwargs, kwargs)
-        self.assertEqual(
-            res_msg, "[correlation_id=fake correlation id] fake message"
-        )
+        self.assertEqual(res_msg, "[correlation_id=fake correlation id] fake message")
 
 
 class CorrelationLoggerMixinTestCase(base.TestCase):
-
     def setUp(self):
         super(CorrelationLoggerMixinTestCase, self).setUp()
 
         class TestedClass(correlation.CorrelationLoggerMixin):
-
             def __init__(self):
                 self._logger = mock.Mock()
                 self.correlation_id = mock.Mock()
@@ -70,9 +63,7 @@ class CorrelationLoggerMixinTestCase(base.TestCase):
         self.assertEqual(self.mixin.get_logger(), adapter)
 
     @mock.patch("bazooka.correlation.CorrelationLoggerAdapter")
-    def test_get_logger_integration_with_adapter(
-        self, CorrelationLoggerAdapter
-    ):
+    def test_get_logger_integration_with_adapter(self, CorrelationLoggerAdapter):
         """Check integration with CorrelationLoggerAdapter"""
         self.mixin.get_logger()
 

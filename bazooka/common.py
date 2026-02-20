@@ -44,15 +44,10 @@ class RESTClientMixIn:
         :raises AttributeError: If no initial URI is provided and the object
             lacks an '_endpoint' attribute.
         """
-        uri = (
-            init_uri
-            if init_uri is not None
-            else getattr(self, "_endpoint", None)
-        )
+        uri = init_uri if init_uri is not None else getattr(self, "_endpoint", None)
         if uri is None:
             raise AttributeError(
-                "No initial URI provided and '_endpoint'"
-                " attribute is not set."
+                "No initial URI provided and '_endpoint' attribute is not set."
             )
 
         for path in paths:

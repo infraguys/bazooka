@@ -35,7 +35,6 @@ class BaseMixinTestCase(base.TestCase):
         """
 
         class SuperClass(object):
-
             def prepare_request(self, request):
                 pass
 
@@ -60,9 +59,7 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         """prepare_requests invokes super method and _log_request."""
         request = mock.MagicMock()
 
-        with mock.patch.object(
-            self.SuperClass, "prepare_request"
-        ) as prepare_request:
+        with mock.patch.object(self.SuperClass, "prepare_request") as prepare_request:
             with mock.patch.object(self.mixin, "_log_request") as log_request:
                 prepare_request.return_value = request
 
@@ -115,9 +112,7 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         seq = curl_logging.CurlLoggingMixin.SENSITIVE_HEADERS
 
         secret_payload = {k: fake_value for k in seq}
-        cleaned_secret_payload = self.mixin._hide_sensitive_headers(
-            secret_payload
-        )
+        cleaned_secret_payload = self.mixin._hide_sensitive_headers(secret_payload)
 
         non_secret_payload = {"%s_non_secret" % k: fake_value for k in seq}
         cleaned_non_secret_payload = self.mixin._hide_sensitive_headers(
@@ -146,19 +141,15 @@ class CurlLoggingMixinTestCase(BaseMixinTestCase):
         with mock.patch.object(
             self.mixin, "get_logger", return_value=logger
         ) as get_logger:
-
             with mock.patch.object(
                 self.mixin, "_curlify_request", return_value=curl_cmd
             ) as curlify_request:
-
                 self.mixin._log_request(request)
 
                 get_logger.assert_called_once_with()
                 curlify_request.assert_called_once_with(request)
 
-                logger.info.assert_called_once_with(
-                    "HTTP(s) request: %s", curl_cmd
-                )
+                logger.info.assert_called_once_with("HTTP(s) request: %s", curl_cmd)
 
 
 class SensitiveCurlLoggingMixinTestCase(BaseMixinTestCase):

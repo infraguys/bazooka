@@ -33,7 +33,6 @@ def retry_on_network_failure(error):
 
 
 class ReliableSession(sessions.Session):
-
     def __init__(self, *args, **kwargs):
         super(ReliableSession, self).__init__(*args, **kwargs)
         # By default request time profiling is disabled.

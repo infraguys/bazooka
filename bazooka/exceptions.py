@@ -21,7 +21,6 @@ from six.moves import http_client as httplib
 
 
 class BaseHTTPException(Exception):
-
     def __init__(self, cause):
         super(BaseHTTPException, self).__init__(str(cause))
         self._cause = cause
