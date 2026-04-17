@@ -16,14 +16,20 @@
 # limitations under the License.
 
 import logging
+from typing import Any, Optional, Type
 
+from requests import Response
 from requests import auth as req_auth
+from requests.auth import AuthBase
 
 from bazooka import correlation
 from bazooka import curl_logging
 from bazooka import sessions
 
-DEFAULT_TIMEOUT = 300
+DEFAULT_TIMEOUT: int = 300
+DEFAULT_CORRELATION_ID_HEADER_NAME = "correlationid"
+
+SessionType = Type["MicroserviceSession"]
 
 
 class MicroserviceSession(
@@ -33,26 +39,29 @@ class MicroserviceSession(
 ):
     def __init__(
         self,
-        auth,
-        verify_ssl,
-        correlation_id=None,
-        correlation_id_header_name="correlationid",
-        log_duration=True,
-    ):
+        auth: Optional[AuthBase],
+        verify_ssl: bool,
+        correlation_id: Optional[str] = None,
+        correlation_id_header_name: str = DEFAULT_CORRELATION_ID_HEADER_NAME,
+        log_duration: bool = True,
+    ) -> None:
         super(MicroserviceSession, self).__init__()
         self.log_duration = log_duration
         self.auth = auth
         # Rewrite default requests.session.Session 'verify' value.
         self.verify = verify_ssl
         self._correlation_id = correlation_id
-        self.headers[correlation_id_header_name] = self.correlation_id
+        if self.correlation_id is not None:
+            self.headers[correlation_id_header_name] = self.correlation_id
         self._logger = logging.getLogger(__name__)
 
     @property
-    def correlation_id(self):
+    def correlation_id(self) -> Optional[str]:
         return self._correlation_id
 
-    def _log_response(self, response, request_time=None):
+    def _log_response(
+        self, response: Response, request_time: Optional[float] = None
+    ) -> None:
         """Write to log HTTP status code."""
         logger = self.get_logger()
         if request_time is None:
@@ -104,19 +113,19 @@ class Client(object):
     Request time profiling is enabled by default.
     """
 
-    SESSION = MicroserviceSession
+    SESSION: SessionType = MicroserviceSession
 
     def __init__(
         self,
-        auth=None,
-        verify_ssl=True,
-        allow_redirects=True,
-        correlation_id=None,
-        correlation_id_header_name="correlationid",
-        log_duration=True,
-        default_timeout=DEFAULT_TIMEOUT,
-        session=None,
-    ):
+        auth: Optional[AuthBase] = None,
+        verify_ssl: bool = True,
+        allow_redirects: bool = True,
+        correlation_id: Optional[str] = None,
+        correlation_id_header_name: str = DEFAULT_CORRELATION_ID_HEADER_NAME,
+        log_duration: bool = True,
+        default_timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[SessionType] = None,
+    ) -> None:
         super(Client, self).__init__()
         self._auth = auth
         self._verify_ssl = verify_ssl
@@ -125,26 +134,26 @@ class Client(object):
         self._correlation_id_header_name = correlation_id_header_name
         self._log_duration = log_duration
         self._default_timeout = default_timeout
-        if session:
+        if session is not None:
             self.SESSION = session
 
     @property
-    def correlation_id(self):
+    def correlation_id(self) -> Optional[str]:
         return self._correlation_id
 
     @correlation_id.setter
-    def correlation_id(self, val):
+    def correlation_id(self, val: Optional[str]) -> None:
         self._correlation_id = val
 
     @property
-    def log_duration(self):
+    def log_duration(self) -> bool:
         return self._log_duration
 
     @log_duration.setter
-    def log_duration(self, log_duration):
+    def log_duration(self, log_duration: bool) -> None:
         self._log_duration = log_duration
 
-    def request(self, method, url, **kwargs):
+    def request(self, method: str, url: str, **kwargs: Any) -> Response:
         """See documentation for requests.api.request."""
         with self.SESSION(
             self._auth,
@@ -156,34 +165,40 @@ class Client(object):
             kwargs.setdefault("timeout", self._default_timeout)
             return session.request(method=method, url=url, **kwargs)
 
-    def get(self, url, params=None, **kwargs):
+    def get(self, url: str, params: Any = None, **kwargs: Any) -> Response:
         """See documentation for requests.api.get."""
         kwargs.setdefault("allow_redirects", self._allow_redirects)
         return self.request("get", url, params=params, **kwargs)
 
-    def options(self, url, **kwargs):
+    def options(self, url: str, **kwargs: Any) -> Response:
         """See documentation for requests.api.options."""
         kwargs.setdefault("allow_redirects", self._allow_redirects)
         return self.request("options", url, **kwargs)
 
-    def head(self, url, **kwargs):
+    def head(self, url: str, **kwargs: Any) -> Response:
         """See documentation for requests.api.head."""
         kwargs.setdefault("allow_redirects", False)
         return self.request("head", url, **kwargs)
 
-    def post(self, url, data=None, json=None, **kwargs):
+    def post(
+        self,
+        url: str,
+        data: Any = None,
+        json: Any = None,
+        **kwargs: Any,
+    ) -> Response:
         """See documentation for requests.api.post."""
         return self.request("post", url, data=data, json=json, **kwargs)
 
-    def put(self, url, data=None, **kwargs):
+    def put(self, url: str, data: Optional[dict] = None, **kwargs: Any) -> Response:
         """See documentation for requests.api.put."""
         return self.request("put", url, data=data, **kwargs)
 
-    def patch(self, url, data=None, **kwargs):
+    def patch(self, url: str, data: Optional[dict] = None, **kwargs: Any) -> Response:
         """See documentation for requests.api.patch."""
         return self.request("patch", url, data=data, **kwargs)
 
-    def delete(self, url, **kwargs):
+    def delete(self, url: str, **kwargs: Any) -> Response:
         """See documentation for requests.api.delete."""
         return self.request("delete", url, **kwargs)
 
@@ -203,15 +218,15 @@ class BasicAuthClient(Client):
 
     def __init__(
         self,
-        username,
-        password,
-        verify_ssl=True,
-        allow_redirects=True,
-        correlation_id=None,
-        correlation_id_header_name="correlationid",
-        log_duration=True,
-        default_timeout=DEFAULT_TIMEOUT,
-    ):
+        username: str,
+        password: str,
+        verify_ssl: bool = True,
+        allow_redirects: bool = True,
+        correlation_id: Optional[str] = None,
+        correlation_id_header_name: str = DEFAULT_CORRELATION_ID_HEADER_NAME,
+        log_duration: bool = True,
+        default_timeout: int = DEFAULT_TIMEOUT,
+    ) -> None:
         super(BasicAuthClient, self).__init__(
             req_auth.HTTPBasicAuth(username=username, password=password),
             verify_ssl=verify_ssl,

@@ -15,48 +15,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
+from requests import Response
+
 from bazooka import sessions
 
 
-def request(method, url, **kwargs):
+def request(method: str, url: str, **kwargs: Any) -> Response:
     """See documentation for requests.api.request."""
     with sessions.ReliableSession() as session:
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url, params=None, **kwargs):
+def get(url: str, params: Any = None, **kwargs: Any) -> Response:
     """See documentation for requests.api.get."""
     kwargs.setdefault("allow_redirects", True)
     return request("get", url, params=params, **kwargs)
 
 
-def options(url, **kwargs):
+def options(url: str, **kwargs: Any) -> Response:
     """See documentation for requests.api.options."""
     kwargs.setdefault("allow_redirects", True)
     return request("options", url, **kwargs)
 
 
-def head(url, **kwargs):
+def head(url: str, **kwargs: Any) -> Response:
     """See documentation for requests.api.head."""
     kwargs.setdefault("allow_redirects", False)
     return request("head", url, **kwargs)
 
 
-def post(url, data=None, json=None, **kwargs):
+def post(
+    url: str,
+    data: Any = None,
+    json: Any = None,
+    **kwargs: Any,
+) -> Response:
     """See documentation for requests.api.post."""
     return request("post", url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url: str, data: Any = None, **kwargs: Any) -> Response:
     """See documentation for requests.api.put."""
     return request("put", url, data=data, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url: str, data: Any = None, **kwargs: Any) -> Response:
     """See documentation for requests.api.patch."""
     return request("patch", url, data=data, **kwargs)
 
 
-def delete(url, **kwargs):
+def delete(url: str, **kwargs: Any) -> Response:
     """See documentation for requests.api.delete."""
     return request("delete", url, **kwargs)
