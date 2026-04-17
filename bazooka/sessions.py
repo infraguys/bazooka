@@ -49,10 +49,11 @@ class ReliableSession(sessions.Session):
         self._log_duration = flag
 
     def _resolve_headers(self, headers=None):
-        resolved_headers = CaseInsensitiveDict(headers or {})
         request_id = request_id_ctx.get_request_id()
-        if request_id:
-            resolved_headers.setdefault(request_id_ctx.REQUEST_ID_HEADER, request_id)
+        if not request_id:
+            return headers
+        resolved_headers = CaseInsensitiveDict(headers or {})
+        resolved_headers.setdefault(request_id_ctx.REQUEST_ID_HEADER, request_id)
         return resolved_headers
 
     def _log_response(self, response, request_time=None):
