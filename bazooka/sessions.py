@@ -20,6 +20,7 @@ import time
 import yretry
 from requests import exceptions
 from requests import sessions
+from requests.structures import CaseInsensitiveDict
 
 from bazooka import exceptions as exc
 from bazooka import request_id as request_id_ctx
@@ -48,7 +49,7 @@ class ReliableSession(sessions.Session):
         self._log_duration = flag
 
     def _resolve_headers(self, headers=None):
-        resolved_headers = dict(headers or {})
+        resolved_headers = CaseInsensitiveDict(headers or {})
         request_id = request_id_ctx.get_request_id()
         if request_id:
             resolved_headers.setdefault(request_id_ctx.REQUEST_ID_HEADER, request_id)

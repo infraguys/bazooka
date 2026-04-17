@@ -13,9 +13,9 @@ def get_request_id() -> Optional[str]:
     return _request_id_ctx.get()
 
 
-def set_request_id(request_id: Optional[str]):
+def set_request_id(request_id: Optional[str]) -> contextvars.Token:
     return _request_id_ctx.set(request_id)
 
 
-def reset_request_id(token) -> None:
+def reset_request_id(token: contextvars.Token) -> None:
     _request_id_ctx.reset(token)

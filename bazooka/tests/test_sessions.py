@@ -208,6 +208,25 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
             json=None,
         )
 
+    def test_lowercase_explicit_request_id_has_priority_over_context(self):
+        response = mock.MagicMock()
+        token = request_id_ctx.set_request_id("ctx-rid")
+        try:
+            with mock.patch.object(
+                self.BaseSession, "request", return_value=response
+            ) as request_mock:
+                self.session.request(
+                    "get",
+                    "http://test.local",
+                    headers={"x-request-id": "explicit-rid"},
+                )
+        finally:
+            request_id_ctx.reset_request_id(token)
+
+        call_headers = request_mock.call_args[1]["headers"]
+        self.assertEqual(call_headers.get("X-Request-ID"), "explicit-rid")
+        self.assertEqual(len(call_headers), 1)
+
     def test_request_calls_log_response_without_request_time(self):
         """Check that request method calls _log_response.
 
