@@ -3,7 +3,7 @@ from typing import Optional
 
 REQUEST_ID_HEADER = "X-Request-ID"
 
-_request_id_ctx: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+_request_id_ctx: "contextvars.ContextVar[Optional[str]]" = contextvars.ContextVar(
     "bazooka_request_id",
     default=None,
 )
