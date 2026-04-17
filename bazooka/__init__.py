@@ -22,6 +22,16 @@ from bazooka.api import post
 from bazooka.api import put
 from bazooka.api import request
 from bazooka.client import Client
+from bazooka import request_id
 
 
-__all__ = ["request", "get", "post", "put", "delete", "patch", "Client"]
+__all__ = [
+    "request",
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "Client",
+    "request_id",
+]

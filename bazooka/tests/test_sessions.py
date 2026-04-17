@@ -19,6 +19,7 @@ import mock
 from six import moves
 
 from bazooka.tests import base
+from bazooka import request_id as request_id_ctx
 
 
 def fake_retry(*args, **kwargs):
@@ -63,7 +64,7 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
         url = mock.Mock()
         params = mock.Mock()
         data = mock.Mock()
-        headers = mock.Mock()
+        headers = {"X-Test": "1"}
         cookies = mock.Mock()
         files = mock.Mock()
         auth = mock.Mock()
@@ -135,6 +136,77 @@ class ReliableSessionTestCase(base.IsolatedClassTestCase):
             self.session.request(method, url)
 
             response.raise_for_status.assert_called_once_with()
+
+    def test_request_id_from_context_is_added(self):
+        response = mock.MagicMock()
+        token = request_id_ctx.set_request_id("ctx-rid")
+        try:
+            with mock.patch.object(
+                self.BaseSession, "request", return_value=response
+            ) as request_mock:
+                self.session.request(
+                    "get",
+                    "http://test.local",
+                    headers={"Authorization": "Bearer token"},
+                )
+        finally:
+            request_id_ctx.reset_request_id(token)
+
+        request_mock.assert_called_once_with(
+            method="get",
+            url="http://test.local",
+            params=None,
+            data=None,
+            headers={
+                "Authorization": "Bearer token",
+                "X-Request-ID": "ctx-rid",
+            },
+            cookies=None,
+            files=None,
+            auth=None,
+            timeout=None,
+            allow_redirects=True,
+            proxies=None,
+            hooks=None,
+            stream=None,
+            verify=None,
+            cert=None,
+            json=None,
+        )
+
+    def test_explicit_request_id_has_priority_over_context(self):
+        response = mock.MagicMock()
+        token = request_id_ctx.set_request_id("ctx-rid")
+        try:
+            with mock.patch.object(
+                self.BaseSession, "request", return_value=response
+            ) as request_mock:
+                self.session.request(
+                    "get",
+                    "http://test.local",
+                    headers={"X-Request-ID": "explicit-rid"},
+                )
+        finally:
+            request_id_ctx.reset_request_id(token)
+
+        request_mock.assert_called_once_with(
+            method="get",
+            url="http://test.local",
+            params=None,
+            data=None,
+            headers={"X-Request-ID": "explicit-rid"},
+            cookies=None,
+            files=None,
+            auth=None,
+            timeout=None,
+            allow_redirects=True,
+            proxies=None,
+            hooks=None,
+            stream=None,
+            verify=None,
+            cert=None,
+            json=None,
+        )
 
     def test_request_calls_log_response_without_request_time(self):
         """Check that request method calls _log_response.
