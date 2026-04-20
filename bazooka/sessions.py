@@ -16,15 +16,17 @@
 # limitations under the License.
 
 import time
+from typing import Any, Optional
 
 import yretry
+from requests import Response
 from requests import exceptions
 from requests import sessions
 
 from bazooka import exceptions as exc
 
 
-def retry_on_network_failure(error):
+def retry_on_network_failure(error: Exception) -> bool:
     """Return True on retriable error"""
     return (
         isinstance(error, exc.BaseHTTPException)
@@ -33,20 +35,22 @@ def retry_on_network_failure(error):
 
 
 class ReliableSession(sessions.Session):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super(ReliableSession, self).__init__(*args, **kwargs)
         # By default request time profiling is disabled.
         self._log_duration = False
 
     @property
-    def log_duration(self):
+    def log_duration(self) -> bool:
         return self._log_duration
 
     @log_duration.setter
-    def log_duration(self, flag):
+    def log_duration(self, flag: bool) -> None:
         self._log_duration = flag
 
-    def _log_response(self, response, request_time=None):
+    def _log_response(
+        self, response: Response, request_time: Optional[float] = None
+    ) -> None:
         """Default handler for response logging.
 
         request_time(float) contains time of request (in seconds) execution or
@@ -57,23 +61,23 @@ class ReliableSession(sessions.Session):
     @yretry.network.retry(retry_on=retry_on_network_failure)
     def request(
         self,
-        method,
-        url,
-        params=None,
-        data=None,
-        headers=None,
-        cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None,
-        json=None,
-    ):
+        method: str,
+        url: str,
+        params: Any = None,
+        data: Any = None,
+        headers: Any = None,
+        cookies: Any = None,
+        files: Any = None,
+        auth: Any = None,
+        timeout: Any = None,
+        allow_redirects: bool = True,
+        proxies: Any = None,
+        hooks: Any = None,
+        stream: Optional[bool] = None,
+        verify: Any = None,
+        cert: Any = None,
+        json: Any = None,
+    ) -> Response:
         """See documentation for requests.sessions.Session.request
 
         Raises exception if status code isn't 2xx
@@ -82,8 +86,8 @@ class ReliableSession(sessions.Session):
         # set_profile_request_time property.
         log_duration = self.log_duration
 
-        start_time = None
-        request_time = None
+        start_time: Optional[float] = None
+        request_time: Optional[float] = None
 
         if log_duration:
             start_time = time.time()
@@ -107,12 +111,12 @@ class ReliableSession(sessions.Session):
             json=json,
         )
 
-        if log_duration:
+        if log_duration and start_time is not None:
             request_time = time.time() - start_time
 
         self._log_response(response, request_time)
         try:
             response.raise_for_status()
-        except exceptions.HTTPError as e:
-            exc.wrap_to_bazooka_exception(e)
+        except exceptions.HTTPError as error:
+            exc.wrap_to_bazooka_exception(error)
         return response

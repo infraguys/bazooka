@@ -15,6 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict, Mapping, Set, cast
+
+from requests import PreparedRequest, Request
+
 
 class CurlLoggingMixin(object):
     """Mixin adds request logging in curl format (for each request)
@@ -28,7 +32,7 @@ class CurlLoggingMixin(object):
     """
 
     # Should be uppercase
-    SENSITIVE_HEADERS = {
+    SENSITIVE_HEADERS: Set[str] = {
         "TOKEN",
         "AUTHORIZATION",
         "BASICAUTH",
@@ -38,31 +42,32 @@ class CurlLoggingMixin(object):
         "COOKIE",
     }
 
-    def prepare_request(self, request):
-        request = super(CurlLoggingMixin, self).prepare_request(request)
-        self._log_request(request)
-        return request
+    def prepare_request(self, request: Request) -> PreparedRequest:
+        prepared_request = cast(Any, super(CurlLoggingMixin, self)).prepare_request(
+            request
+        )
+        self._log_request(prepared_request)
+        return prepared_request
 
     @staticmethod
-    def _mask(value):
+    def _mask(value: Any) -> str:
         return "<%s>" % value
 
-    def _hide_sensitive_headers(self, data):
-        if isinstance(data, dict):
-            data = data.copy()
+    def _hide_sensitive_headers(self, data: Mapping[str, Any]) -> Dict[str, Any]:
+        sanitized_headers = dict(data)
 
-            for param in data:
-                if str(param).upper() in self.SENSITIVE_HEADERS:
-                    data[param] = self._mask(param)
+        for param in sanitized_headers:
+            if str(param).upper() in self.SENSITIVE_HEADERS:
+                sanitized_headers[param] = self._mask(param)
 
-        return data
+        return sanitized_headers
 
-    def _sanitize_body(self, body):
+    def _sanitize_body(self, body: Any) -> Any:
         return body
 
-    def _curlify_request(self, request):
+    def _curlify_request(self, request: PreparedRequest) -> str:
         """OpenStack approach for human-readable requests logging."""
-        parameters = dict()
+        parameters: Dict[str, Any] = {}
         headers = self._hide_sensitive_headers(dict(request.headers))
 
         parameters["headers"] = " ".join(
@@ -80,8 +85,8 @@ class CurlLoggingMixin(object):
 
         return "curl %(method)s %(headers)s %(data)s %(url)s" % parameters
 
-    def _log_request(self, request):
-        logger = self.get_logger()
+    def _log_request(self, request: PreparedRequest) -> None:
+        logger = cast(Any, self).get_logger()
         curl_cmd = self._curlify_request(request)
         logger.info("HTTP(s) request: %s", curl_cmd)
 
@@ -89,5 +94,5 @@ class CurlLoggingMixin(object):
 class SensitiveCurlLoggingMixin(CurlLoggingMixin):
     SANITIZED_PLUG = "<SENSITIVE_DATA>"
 
-    def _sanitize_body(self, body):
+    def _sanitize_body(self, body: Any) -> str:
         return self.SANITIZED_PLUG

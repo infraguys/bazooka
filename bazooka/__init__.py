@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
+
 from bazooka.api import delete
 from bazooka.api import get
 from bazooka.api import patch
@@ -24,4 +26,4 @@ from bazooka.api import request
 from bazooka.client import Client
 
 
-__all__ = ["request", "get", "post", "put", "delete", "patch", "Client"]
+__all__: List[str] = ["request", "get", "post", "put", "delete", "patch", "Client"]

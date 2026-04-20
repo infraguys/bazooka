@@ -16,22 +16,32 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import NoReturn
+
+from requests import Response
 from requests import exceptions
 from six.moves import http_client as httplib
 
 
 class BaseHTTPException(Exception):
-    def __init__(self, cause):
+    def __init__(self, cause: exceptions.HTTPError) -> None:
         super(BaseHTTPException, self).__init__(str(cause))
         self._cause = cause
-        self._code = self._cause.response.status_code
+        response = self._response_from_error(cause)
+        self._code = response.status_code
+
+    @staticmethod
+    def _response_from_error(cause: exceptions.HTTPError) -> Response:
+        if cause.response is None:
+            raise ValueError("HTTPError must contain a response")
+        return cause.response
 
     @property
-    def cause(self):
+    def cause(self) -> exceptions.HTTPError:
         return self._cause
 
     @property
-    def code(self):
+    def code(self) -> int:
         return self._code
 
 
@@ -59,17 +69,18 @@ class UnauthorizedError(ClientError):
     pass
 
 
-def wrap_to_bazooka_exception(cause):
+def wrap_to_bazooka_exception(cause: Exception) -> NoReturn:
     if isinstance(cause, exceptions.HTTPError):
-        if httplib.NOT_FOUND == cause.response.status_code:
+        response = BaseHTTPException._response_from_error(cause)
+        if httplib.NOT_FOUND == response.status_code:
             raise NotFoundError(cause)
-        elif httplib.UNAUTHORIZED == cause.response.status_code:
+        elif httplib.UNAUTHORIZED == response.status_code:
             raise UnauthorizedError(cause)
-        elif httplib.CONFLICT == cause.response.status_code:
+        elif httplib.CONFLICT == response.status_code:
             raise ConflictError(cause)
-        elif httplib.BAD_REQUEST == cause.response.status_code:
+        elif httplib.BAD_REQUEST == response.status_code:
             raise BadRequestError(cause)
-        elif httplib.FORBIDDEN == cause.response.status_code:
+        elif httplib.FORBIDDEN == response.status_code:
             raise ForbiddenError(cause)
         raise BaseHTTPException(cause)
     raise cause

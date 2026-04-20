@@ -14,22 +14,24 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import Iterable, Optional
 from urllib import parse
-from typing import Optional, Iterable
-
-
-def force_last_slash(path: str) -> str:
-    """
-    Force path to have a trailing slash.
-
-    :param path: The path to be adjusted
-    :return: The path with a trailing slash
-    """
-    return path if path.endswith("/") else f"{path}/"
 
 
 class RESTClientMixIn:
     """Mixin class providing REST URI construction utilities."""
+
+    _endpoint: Optional[str]
+
+    @staticmethod
+    def force_last_slash(path: str) -> str:
+        """
+        Force path to have a trailing slash.
+
+        :param path: The path to be adjusted
+        :return: The path with a trailing slash
+        """
+        return path if path.endswith("/") else f"{path}/"
 
     def _build_resource_uri(
         self, paths: Iterable[str], init_uri: Optional[str] = None
@@ -51,7 +53,7 @@ class RESTClientMixIn:
             )
 
         for path in paths:
-            uri = parse.urljoin(force_last_slash(uri), str(path).lstrip("/"))
+            uri = parse.urljoin(self.force_last_slash(uri), str(path).lstrip("/"))
 
         return uri
 
@@ -66,4 +68,9 @@ class RESTClientMixIn:
         :param init_uri: An optional initial URI (default is None)
         :return: A full URI constructed from the components
         """
-        return force_last_slash(self._build_resource_uri(paths, init_uri))
+        return self.force_last_slash(self._build_resource_uri(paths, init_uri))
+
+
+def force_last_slash(path: str) -> str:
+    """Backward-compatible module-level wrapper for RESTClientMixIn.force_last_slash."""
+    return RESTClientMixIn.force_last_slash(path)

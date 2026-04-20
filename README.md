@@ -73,3 +73,25 @@ To get started with Bazooka, install it via pip:
 ```bash
 pip install bazooka
 ```
+
+For local linting and type checks without `tox`, install the corresponding extras:
+
+```bash
+python -m pip install -e ".[ruff,mypy]"
+```
+
+Then run the tools directly from the repository root via Python:
+
+```bash
+python -m ruff format
+python -m ruff check . --fix
+python -m mypy -p bazooka
+```
+
+Or run the same checks via `tox`:
+
+```bash
+tox -e ruff
+tox -e ruff-check
+tox -e mypy
+```

@@ -16,16 +16,19 @@
 # limitations under the License.
 
 import logging
+from typing import Any, MutableMapping, Optional, Tuple, cast
+
+ProcessResult = Tuple[str, MutableMapping[str, Any]]
 
 
 class CorrelationLoggerAdapter(logging.LoggerAdapter):
     """It writes correlation id for each log entry"""
 
-    def __init__(self, logger, correlation_id):
+    def __init__(self, logger: logging.Logger, correlation_id: Optional[str]) -> None:
         super(CorrelationLoggerAdapter, self).__init__(logger, {})
         self._correlation_id = correlation_id
 
-    def process(self, msg, kwargs):
+    def process(self, msg: Any, kwargs: MutableMapping[str, Any]) -> ProcessResult:
         return "[correlation_id=%s] %s" % (self._correlation_id, msg), kwargs
 
 
@@ -40,6 +43,9 @@ class CorrelationLoggerMixin(object):
     method that used by retries module.
     """
 
-    def get_logger(self):
-        adapter = CorrelationLoggerAdapter(self._logger, self.correlation_id)
+    _logger: logging.Logger
+
+    def get_logger(self) -> CorrelationLoggerAdapter:
+        correlation_id = cast(Optional[str], getattr(self, "correlation_id"))
+        adapter = CorrelationLoggerAdapter(self._logger, correlation_id)
         return adapter
