@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextvars
 from typing import Optional
 import uuid
@@ -22,9 +24,11 @@ def resolve_request_id(request_id: Optional[str] = None) -> str:
     return request_id or generate_request_id()
 
 
-def set_request_id(request_id: Optional[str]):
+def set_request_id(
+    request_id: Optional[str] = None,
+) -> contextvars.Token[Optional[str]]:
     return _request_id_ctx.set(resolve_request_id(request_id))
 
 
-def reset_request_id(token) -> None:
+def reset_request_id(token: contextvars.Token[Optional[str]]) -> None:
     _request_id_ctx.reset(token)
