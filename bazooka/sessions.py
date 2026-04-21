@@ -48,7 +48,8 @@ class ReliableSession(sessions.Session):
     def log_duration(self, flag):
         self._log_duration = flag
 
-    def _resolve_headers(self, headers=None):
+    @staticmethod
+    def _resolve_headers(headers=None):
         request_id = request_id_ctx.get_request_id()
         if not request_id:
             return headers
