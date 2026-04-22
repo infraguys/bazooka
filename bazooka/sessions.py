@@ -20,8 +20,10 @@ import time
 import yretry
 from requests import exceptions
 from requests import sessions
+from requests.structures import CaseInsensitiveDict
 
 from bazooka import exceptions as exc
+from bazooka import request_id as request_id_ctx
 
 
 def retry_on_network_failure(error):
@@ -45,6 +47,15 @@ class ReliableSession(sessions.Session):
     @log_duration.setter
     def log_duration(self, flag):
         self._log_duration = flag
+
+    @staticmethod
+    def _resolve_headers(headers=None):
+        request_id = request_id_ctx.get_request_id()
+        if not request_id:
+            return headers
+        resolved_headers = CaseInsensitiveDict(headers or {})
+        resolved_headers.setdefault(request_id_ctx.REQUEST_ID_HEADER, request_id)
+        return resolved_headers
 
     def _log_response(self, response, request_time=None):
         """Default handler for response logging.
@@ -93,7 +104,7 @@ class ReliableSession(sessions.Session):
             url=url,
             params=params,
             data=data,
-            headers=headers,
+            headers=self._resolve_headers(headers),
             cookies=cookies,
             files=files,
             auth=auth,
