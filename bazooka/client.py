@@ -43,6 +43,9 @@ def _is_text_response(response):
     return content_type.startswith("text/") or content_type in _TEXT_CONTENT_TYPES
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 class MicroserviceSession(
     correlation.CorrelationLoggerMixin,
     curl_logging.CurlLoggingMixin,
@@ -63,7 +66,7 @@ class MicroserviceSession(
         self.verify = verify_ssl
         self._correlation_id = correlation_id
         self.headers[correlation_id_header_name] = self.correlation_id
-        self._logger = logging.getLogger(__name__)
+        self._logger = _LOGGER
 
     @property
     def correlation_id(self):
