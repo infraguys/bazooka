@@ -110,6 +110,7 @@ class MicroserviceSessionTestCase(base.TestCase):
         response.status_code = "fake status code"
         response.reason = "fake reason"
         response.text = "fake response"
+        response.headers = {"Content-Type": "text/plain"}
 
         with mock.patch.object(self.session, "get_logger", return_value=logger):
             self.assertIsNone(self.session._log_response(response))
@@ -133,6 +134,7 @@ class MicroserviceSessionTestCase(base.TestCase):
         response.status_code = "fake status code"
         response.reason = "fake reason"
         response.text = "fake response"
+        response.headers = {"Content-Type": "application/json"}
 
         with mock.patch.object(self.session, "get_logger", return_value=logger):
             self.assertIsNone(self.session._log_response(response, request_time))
@@ -144,6 +146,53 @@ class MicroserviceSessionTestCase(base.TestCase):
                 response.status_code,
                 response.reason,
                 response.text,
+            )
+
+    def test_log_response_binary_body_is_never_logged(self):
+        """[Positive] Binary bodies are noted, never decoded/logged raw."""
+        logger = mock.MagicMock()
+
+        response = mock.MagicMock()
+        response.url = "fake url"
+        response.status_code = "fake status code"
+        response.reason = "fake reason"
+        response.content = b"\x00\x01\xffbinary"
+        response.headers = {
+            "Content-Type": "application/octet-stream",
+            "Content-Length": "9",
+        }
+
+        with mock.patch.object(self.session, "get_logger", return_value=logger):
+            self.assertIsNone(self.session._log_response(response))
+
+            logger.info.assert_called_once_with(
+                "Response: from %s with status code %s %s: %s",
+                response.url,
+                response.status_code,
+                response.reason,
+                "<binary body, content-type=application/octet-stream, length=9 bytes>",
+            )
+
+    def test_log_response_binary_body_falls_back_to_content_length(self):
+        """[Positive] Length is computed from body when header is missing."""
+        logger = mock.MagicMock()
+
+        response = mock.MagicMock()
+        response.url = "fake url"
+        response.status_code = "fake status code"
+        response.reason = "fake reason"
+        response.content = b"\x00\x01\xffbinary"
+        response.headers = {"Content-Type": "application/octet-stream"}
+
+        with mock.patch.object(self.session, "get_logger", return_value=logger):
+            self.assertIsNone(self.session._log_response(response))
+
+            logger.info.assert_called_once_with(
+                "Response: from %s with status code %s %s: %s",
+                response.url,
+                response.status_code,
+                response.reason,
+                "<binary body, content-type=application/octet-stream, length=9 bytes>",
             )
 
 

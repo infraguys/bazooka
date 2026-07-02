@@ -25,6 +25,23 @@ from bazooka import sessions
 
 DEFAULT_TIMEOUT = 300
 
+# Content-Types that are safe to decode and log as text. O(1) membership
+# check; "text/*" is handled separately since it's a prefix, not a value.
+_TEXT_CONTENT_TYPES = frozenset(
+    (
+        "application/json",
+        "application/xml",
+        "application/javascript",
+        "application/x-www-form-urlencoded",
+    )
+)
+
+
+def _is_text_response(response):
+    content_type = response.headers.get("Content-Type", "") or ""
+    content_type = content_type.split(";", 1)[0].strip().lower()
+    return content_type.startswith("text/") or content_type in _TEXT_CONTENT_TYPES
+
 
 class MicroserviceSession(
     correlation.CorrelationLoggerMixin,
@@ -55,13 +72,14 @@ class MicroserviceSession(
     def _log_response(self, response, request_time=None):
         """Write to log HTTP status code."""
         logger = self.get_logger()
+        body = self._response_body_for_log(response)
         if request_time is None:
             logger.info(
                 "Response: from %s with status code %s %s: %s",
                 response.url,
                 response.status_code,
                 response.reason,
-                response.text,
+                body,
             )
         else:
             logger.info(
@@ -70,8 +88,29 @@ class MicroserviceSession(
                 response.url,
                 response.status_code,
                 response.reason,
-                response.text,
+                body,
             )
+
+    @staticmethod
+    def _response_body_for_log(response):
+        """Return a body representation that is safe to write to the log.
+
+        Text-ish Content-Types are logged as-is. Binary bodies are never
+        decoded/logged (that produces garbled/invalid log records, e.g.
+        journald replacing them with "[N bytes blob data]") - we only note
+        that the body is binary and how large it is.
+        """
+        if _is_text_response(response):
+            return response.text
+
+        content_type = response.headers.get("Content-Type") or "unknown"
+        size = response.headers.get("Content-Length")
+        if size is None:
+            size = len(response.content)
+        return "<binary body, content-type=%s, length=%s bytes>" % (
+            content_type,
+            size,
+        )
 
 
 class SensitiveMicroserviceSession(
